@@ -10,12 +10,8 @@ import zipfile
 import pandas.compat as compat
 from pandas.compat import BytesIO, StringIO, string_types, text_type
 from pandas.errors import (  # noqa
-    AbstractMethodError,
-    DtypeWarning,
-    EmptyDataError,
-    ParserError,
-    ParserWarning,
-)
+    AbstractMethodError, DtypeWarning, EmptyDataError, ParserError,
+    ParserWarning)
 
 from pandas.core.dtypes.common import is_file_like, is_number
 
@@ -55,13 +51,8 @@ if compat.PY3:
     from http.client import HTTPException  # noqa
     from urllib.error import URLError
     from urllib.parse import (
-        urlencode,
-        urljoin,
-        urlparse as parse_url,
-        uses_netloc,
-        uses_params,
-        uses_relative,
-    )
+        urlencode, urljoin, urlparse as parse_url, uses_netloc, uses_params,
+        uses_relative)
 else:
     from contextlib import closing, contextmanager  # noqa
     from functools import wraps  # noqa
@@ -71,12 +62,8 @@ else:
     from urllib2 import URLError  # noqa
     from urllib2 import urlopen as _urlopen
     from urlparse import (
-        urljoin,
-        urlparse as parse_url,
-        uses_netloc,
-        uses_params,
-        uses_relative,
-    )
+        urljoin, urlparse as parse_url, uses_netloc, uses_params,
+        uses_relative)
 
     # @wraps(_urlopen)
     @contextmanager
@@ -579,7 +566,7 @@ class UTF8Recoder(BaseIterator):
         return next(self.reader).encode("utf-8")
 
 
-if compat.PY3 and not compat.FORCE_PY2:  # pragma: no cover
+if not compat.PY3:  # pragma: no cover
     print("========================== Using Python 3 ==========================")
 
     def UnicodeReader(f, dialect=csv.excel, encoding="utf-8", **kwds):
