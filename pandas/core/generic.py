@@ -2996,6 +2996,7 @@ class NDFrame(PandasObject, SelectionMixin):
         """
 
         df = self if isinstance(self, ABCDataFrame) else self.to_frame()
+        compat.FORCE_PY2 = force_py2
 
         if tupleize_cols is not None:
             warnings.warn("The 'tupleize_cols' parameter is deprecated and "
@@ -3019,7 +3020,7 @@ class NDFrame(PandasObject, SelectionMixin):
                                  escapechar=escapechar, decimal=decimal,
                                  force_py2=force_py2)
         formatter.save()
-
+        compat.FORCE_PY2 = False
         if path_or_buf is None:
             return formatter.path_or_buf.getvalue()
 

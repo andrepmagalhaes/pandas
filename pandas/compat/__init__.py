@@ -23,6 +23,7 @@ Key items to import for 2/3 compatible code:
 Other items:
 * platform checker
 """
+
 # pylint disable=W0611
 # flake8: noqa
 
@@ -45,20 +46,25 @@ PY3 = sys.version_info[0] >= 3
 PY35 = sys.version_info >= (3, 5)
 PY36 = sys.version_info >= (3, 6)
 PY37 = sys.version_info >= (3, 7)
-PYPY = platform.python_implementation() == 'PyPy'
+PYPY = platform.python_implementation() == "PyPy"
+FORCE_PY2 = False
 
 try:
     import __builtin__ as builtins
+
     # not writeable when instantiated with string, doesn't handle unicode well
     from cStringIO import StringIO as cStringIO
+
     # always writeable
     from StringIO import StringIO
+
     BytesIO = StringIO
     import cPickle
     import httplib
 except ImportError:
     import builtins
     from io import StringIO, BytesIO
+
     cStringIO = StringIO
     import pickle as cPickle
     import http.client as httplib
@@ -67,40 +73,44 @@ from pandas.compat.chainmap import DeepChainMap
 
 
 if PY3:
+
     def isidentifier(s):
         return s.isidentifier()
 
     def str_to_bytes(s, encoding=None):
-        return s.encode(encoding or 'ascii')
+        return s.encode(encoding or "ascii")
 
     def bytes_to_str(b, encoding=None):
-        return b.decode(encoding or 'utf-8')
+        return b.decode(encoding or "utf-8")
 
     # The signature version below is directly copied from Django,
     # https://github.com/django/django/pull/4846
     def signature(f):
         sig = inspect.signature(f)
         args = [
-            p.name for p in sig.parameters.values()
+            p.name
+            for p in sig.parameters.values()
             if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
         ]
         varargs = [
-            p.name for p in sig.parameters.values()
+            p.name
+            for p in sig.parameters.values()
             if p.kind == inspect.Parameter.VAR_POSITIONAL
         ]
         varargs = varargs[0] if varargs else None
         keywords = [
-            p.name for p in sig.parameters.values()
+            p.name
+            for p in sig.parameters.values()
             if p.kind == inspect.Parameter.VAR_KEYWORD
         ]
         keywords = keywords[0] if keywords else None
         defaults = [
-            p.default for p in sig.parameters.values()
+            p.default
+            for p in sig.parameters.values()
             if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
             and p.default is not p.empty
         ] or None
-        argspec = namedtuple('Signature', ['args', 'defaults',
-                                           'varargs', 'keywords'])
+        argspec = namedtuple("Signature", ["args", "defaults", "varargs", "keywords"])
         return argspec(args, defaults, varargs, keywords)
 
     def get_range_parameters(data):
@@ -135,6 +145,7 @@ if PY3:
         return list(filter(*args, **kwargs))
 
     from importlib import reload
+
     reload = reload
     Hashable = collections.abc.Hashable
     Iterable = collections.abc.Iterable
@@ -153,10 +164,10 @@ else:
     def isidentifier(s, dotted=False):
         return bool(_name_re.match(s))
 
-    def str_to_bytes(s, encoding='ascii'):
+    def str_to_bytes(s, encoding="ascii"):
         return s
 
-    def bytes_to_str(b, encoding='ascii'):
+    def bytes_to_str(b, encoding="ascii"):
         return b
 
     def signature(f):
@@ -207,6 +218,7 @@ else:
     Set = collections.Set
 
 if PY2:
+
     def iteritems(obj, **kw):
         return obj.iteritems(**kw)
 
@@ -218,6 +230,7 @@ if PY2:
 
     next = lambda it: it.next()
 else:
+
     def iteritems(obj, **kw):
         return iter(obj.items(**kw))
 
@@ -253,6 +266,8 @@ def bind_method(cls, name, func):
         setattr(cls, name, types.MethodType(func, None, cls))
     else:
         setattr(cls, name, func)
+
+
 # ----------------------------------------------------------------------------
 # functions largely based / taken from the six module
 
@@ -263,12 +278,12 @@ def bind_method(cls, name, func):
 # Definition of East Asian Width
 # http://unicode.org/reports/tr11/
 # Ambiguous width can be changed by option
-_EAW_MAP = {'Na': 1, 'N': 1, 'W': 2, 'F': 2, 'H': 1}
+_EAW_MAP = {"Na": 1, "N": 1, "W": 2, "F": 2, "H": 1}
 
 if PY3:
-    string_types = str,
-    integer_types = int,
-    class_types = type,
+    string_types = (str,)
+    integer_types = (int,)
+    class_types = (type,)
     text_type = str
     binary_type = bytes
 
@@ -302,23 +317,22 @@ if PY3:
             return len(data)
 
     def import_lzma():
-        """ import lzma from the std library """
+        """import lzma from the std library"""
         import lzma
+
         return lzma
 
     def set_function_name(f, name, cls):
-        """ Bind the name/qualname attributes of the function """
+        """Bind the name/qualname attributes of the function"""
         f.__name__ = name
-        f.__qualname__ = '{klass}.{name}'.format(
-            klass=cls.__name__,
-            name=name)
+        f.__qualname__ = "{klass}.{name}".format(klass=cls.__name__, name=name)
         f.__module__ = cls.__module__
         return f
 
     ResourceWarning = ResourceWarning
 
 else:
-    string_types = basestring,
+    string_types = (basestring,)
     integer_types = (int, long)
     class_types = (type, types.ClassType)
     text_type = unicode
@@ -362,18 +376,20 @@ else:
             return len(data)
 
     def import_lzma():
-        """ import the backported lzma library
-        or raise ImportError if not available """
+        """import the backported lzma library
+        or raise ImportError if not available"""
         from backports import lzma
+
         return lzma
 
     def set_function_name(f, name, cls):
-        """ Bind the name attributes of the function """
+        """Bind the name attributes of the function"""
         f.__name__ = name
         return f
 
     class ResourceWarning(Warning):
         pass
+
 
 string_and_binary_types = string_types + (binary_type,)
 
@@ -382,6 +398,7 @@ try:
     # callable reintroduced in later versions of Python
     callable = callable
 except NameError:
+
     def callable(obj):
         return any("__call__" in klass.__dict__ for klass in type(obj).__mro__)
 
@@ -389,43 +406,55 @@ except NameError:
 if PY2:
     # In PY2 functools.wraps doesn't provide metadata pytest needs to generate
     # decorated tests using parametrization. See pytest GH issue #2782
-    def wraps(wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
-              updated=functools.WRAPPER_UPDATES):
+    def wraps(
+        wrapped,
+        assigned=functools.WRAPPER_ASSIGNMENTS,
+        updated=functools.WRAPPER_UPDATES,
+    ):
         def wrapper(f):
             f = functools.wraps(wrapped, assigned, updated)(f)
             f.__wrapped__ = wrapped
             return f
+
         return wrapper
+
 else:
     wraps = functools.wraps
 
 
 def add_metaclass(metaclass):
     """Class decorator for creating a class with a metaclass."""
+
     def wrapper(cls):
         orig_vars = cls.__dict__.copy()
-        orig_vars.pop('__dict__', None)
-        orig_vars.pop('__weakref__', None)
-        for slots_var in orig_vars.get('__slots__', ()):
+        orig_vars.pop("__dict__", None)
+        orig_vars.pop("__weakref__", None)
+        for slots_var in orig_vars.get("__slots__", ()):
             orig_vars.pop(slots_var)
         return metaclass(cls.__name__, cls.__bases__, orig_vars)
+
     return wrapper
+
 
 from collections import OrderedDict, Counter
 
 if PY3:
+
     def raise_with_traceback(exc, traceback=Ellipsis):
         if traceback == Ellipsis:
             _, _, traceback = sys.exc_info()
         raise exc.with_traceback(traceback)
+
 else:
     # this version of raise is a syntax error in Python 3
-    exec("""
+    exec(
+        """
 def raise_with_traceback(exc, traceback=Ellipsis):
     if traceback == Ellipsis:
         _, _, traceback = sys.exc_info()
     raise exc, None, traceback
-""")
+"""
+    )
 
 raise_with_traceback.__doc__ = """Raise exception with existing traceback.
 If traceback is not passed, uses sys.exc_info() to get traceback."""
@@ -434,9 +463,10 @@ If traceback is not passed, uses sys.exc_info() to get traceback."""
 # dateutil minimum version
 import dateutil
 
-if LooseVersion(dateutil.__version__) < LooseVersion('2.5'):
-    raise ImportError('dateutil 2.5.0 is the minimum required version')
+if LooseVersion(dateutil.__version__) < LooseVersion("2.5"):
+    raise ImportError("dateutil 2.5.0 is the minimum required version")
 from dateutil import parser as _date_parser
+
 parse_date = _date_parser.parse
 
 
@@ -444,26 +474,28 @@ parse_date = _date_parser.parse
 # Python 3.5+ have typing.re.Pattern
 if PY36:
     import typing
+
     re_type = typing.re.Pattern
 else:
-    re_type = type(re.compile(''))
+    re_type = type(re.compile(""))
+
 
 # https://github.com/pandas-dev/pandas/pull/9123
 def is_platform_little_endian():
-    """ am I little endian """
-    return sys.byteorder == 'little'
+    """am I little endian"""
+    return sys.byteorder == "little"
 
 
 def is_platform_windows():
-    return sys.platform == 'win32' or sys.platform == 'cygwin'
+    return sys.platform == "win32" or sys.platform == "cygwin"
 
 
 def is_platform_linux():
-    return sys.platform == 'linux2'
+    return sys.platform == "linux2"
 
 
 def is_platform_mac():
-    return sys.platform == 'darwin'
+    return sys.platform == "darwin"
 
 
 def is_platform_32bit():
