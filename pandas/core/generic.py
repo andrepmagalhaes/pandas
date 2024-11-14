@@ -2884,7 +2884,7 @@ class NDFrame(PandasObject, SelectionMixin):
                mode='w', encoding=None, compression='infer', quoting=None,
                quotechar='"', line_terminator=None, chunksize=None,
                tupleize_cols=None, date_format=None, doublequote=True,
-               escapechar=None, decimal='.'):
+               escapechar=None, decimal='.', force_py2=False):
         r"""
         Write object to a comma-separated values (csv) file.
 
@@ -3016,7 +3016,8 @@ class NDFrame(PandasObject, SelectionMixin):
                                  tupleize_cols=tupleize_cols,
                                  date_format=date_format,
                                  doublequote=doublequote,
-                                 escapechar=escapechar, decimal=decimal)
+                                 escapechar=escapechar, decimal=decimal,
+                                 force_py2=force_py2)
         formatter.save()
 
         if path_or_buf is None:
@@ -8146,8 +8147,7 @@ class NDFrame(PandasObject, SelectionMixin):
         2000-01-04     36      90
         """
 
-        from pandas.core.resample import (resample,
-                                          _maybe_process_deprecations)
+        from pandas.core.resample import _maybe_process_deprecations, resample
         axis = self._get_axis_number(axis)
         r = resample(self, freq=rule, label=label, closed=closed,
                      axis=axis, kind=kind, loffset=loffset,
