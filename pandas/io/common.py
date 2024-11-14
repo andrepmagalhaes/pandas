@@ -580,6 +580,7 @@ class UTF8Recoder(BaseIterator):
 
 
 if compat.PY3 and not compat.FORCE_PY2:  # pragma: no cover
+    print("========================== Using Python 3 ==========================")
 
     def UnicodeReader(f, dialect=csv.excel, encoding="utf-8", **kwds):
         # ignore encoding
@@ -589,6 +590,7 @@ if compat.PY3 and not compat.FORCE_PY2:  # pragma: no cover
         return csv.writer(f, dialect=dialect, **kwds)
 
 else:
+    print("========================== Using Python 2 ==========================")
 
     class UnicodeReader(BaseIterator):
         """
